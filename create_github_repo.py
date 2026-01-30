@@ -14,10 +14,16 @@ Requirements:
 
 import os
 import sys
+import io
 import argparse
 import requests
 import subprocess
 from pathlib import Path
+
+# Fix encoding for Windows
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 
 def create_github_repo(token, repo_name="feishu-tools", private=False):
