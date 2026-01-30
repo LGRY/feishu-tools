@@ -58,12 +58,13 @@ def setup_git_remote(repo_url):
     """Setup git remote and push"""
 
     try:
-        # Add remote
-        subprocess.run(
-            ["git", "remote", "add", "origin", repo_url],
-            check=True,
-            capture_output=True
-        )
+        # Add remote only if repo_url is provided
+        if repo_url:
+            subprocess.run(
+                ["git", "remote", "add", "origin", repo_url],
+                check=True,
+                capture_output=True
+            )
 
         # Push to GitHub
         subprocess.run(
