@@ -88,61 +88,177 @@ You'll need two values:
 
 ### Understanding Permission Types
 
-Feishu uses tenant-level permissions for apps. The permissions you need depend on what you want to access:
+Feishu uses two types of permissions:
 
-| Feature | Required Permission | Status |
-|---------|---------------------|--------|
-| Read documents | `docx:document` | Required |
-| Read Wiki pages | `wiki:wiki:readonly` | Optional |
-| Read Drive files | `drive:drive:readonly` | Optional |
-| Search content | `search:search:readonly` | Optional |
+- **Tenant Permissions** (租户权限): App-level access, no user authorization required
+- **User Permissions** (用户权限): User-specific access, requires OAuth authorization
 
-### Step 1: Access Permissions Management
+This skill supports both authentication types. Configure based on your needs:
 
-1. In the left sidebar, click **"Permissions & Scopes"** (权限管理)
-2. You'll see two tabs: "Tenant Permissions" and "User Permissions"
-3. Stay on the **"Tenant Permissions"** tab
+| Feature | Tenant Permissions | User Permissions |
+|---------|-------------------|------------------|
+| Read documents | ✅ | ✅ |
+| Create/edit documents | ✅ | ✅ |
+| Upload images | ✅ | ✅ |
+| Wiki access | ✅ | ✅ |
+| Search content | ❌ | ✅ |
+| Multi-user support | ❌ | ✅ |
 
-### Step 2: Add Required Permissions
+### Complete Permission List (Read + Write)
 
-#### Method A: Manual Configuration (Individual Permissions)
+This skill supports both reading and editing documents. Configure **all** the following permissions:
 
-1. Click **"Add Permission"** or **"Configure"**
-2. Find and enable each permission:
-   - Search for "document" and enable `docx:document`
-   - Search for "wiki" and enable `wiki:wiki:readonly`
-   - Search for "drive" and enable `drive:drive:readonly`
-3. Click **"Save"** after enabling each permission
+#### Method A: Batch Import (Recommended) - 推荐
 
-#### Method B: Batch Import (JSON Configuration) - Recommended
-
-For faster setup, use the batch import feature:
-
-1. In the **"Permissions & Scopes"** page, find and click **"Batch Import"** (批量导入)
+1. In **"Permissions & Scopes"** (权限管理), click **"Batch Import"** (批量导入)
 2. Select **"JSON Configuration"** mode
-3. Paste the following JSON configuration:
+3. Paste the complete JSON configuration below:
+
+**For Tenant Authentication (租户认证) - App-level access:**
 
 ```json
 {
   "scopes": {
     "tenant": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
       "docx:document",
-      "wiki:wiki:readonly",
-      "drive:drive:readonly"
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly"
     ]
   }
 }
 ```
 
-4. Click **"Import"** or **"Apply"**
-5. All specified permissions will be enabled at once
+**For User Authentication (用户认证) - OAuth with search support:**
 
-### Step 3: Verify Permissions
+```json
+{
+  "scopes": {
+    "tenant": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
+      "docx:document",
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly"
+    ],
+    "user": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
+      "docx:document",
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly",
+      "search:docs:read",
+      "offline_access"
+    ]
+  }
+}
+```
 
-After adding permissions, verify they appear in your tenant permissions list:
-- ✅ `docx:document` - Get and access documents
-- ✅ `wiki:wiki:readonly` - Read Wiki pages
-- ✅ `drive:drive:readonly` - Read Drive files
+4. Click **"Import"** (导入) or **"Apply"** (应用)
+5. All permissions will be enabled at once
+
+#### Method B: Manual Configuration (逐个添加)
+
+1. Click **"Add Permission"** (添加权限)
+2. Search and enable each permission:
+
+**Document Permissions (文档权限):**
+- `docx:document` - Access and edit documents
+- `docx:document:create` - Create new documents
+- `docx:document:readonly` - Read documents
+- `docx:document.block:convert` - Convert block types
+- `docs:document.content:read` - Read document content
+
+**Wiki Permissions (知识库权限):**
+- `wiki:wiki` - Access Wiki pages
+- `wiki:wiki:readonly` - Read Wiki pages
+- `wiki:space:read` - Read Wiki space info
+- `wiki:space:retrieve` - Retrieve Wiki space data
+
+**Drive/Storage Permissions (云空间权限):**
+- `drive:drive` - Access Drive (full access)
+- `drive:drive:readonly` - Read Drive files
+- `drive:file` - Manage files
+- `drive:file:upload` - Upload files
+- `space:document:retrieve` - Retrieve documents
+- `space:folder:create` - Create folders
+
+**Whiteboard Permissions (白板权限):**
+- `board:whiteboard:node:create` - Create whiteboard nodes
+- `board:whiteboard:node:read` - Read whiteboard content
+
+**Other Permissions:**
+- `base:app:read` - Read app info
+- `bitable:app:readonly` - Read bitable apps
+- `sheets:spreadsheet:readonly` - Read spreadsheets
+
+3. For user authentication, also add:
+   - `search:docs:read` - Search documents
+   - `offline_access` - Refresh token support
+
+### Step 2: Verify Permissions
+
+After adding permissions, verify they appear in your permissions list:
+
+**Tenant Permissions (租户权限) should include:**
+- ✅ `docx:document` - Document access
+- ✅ `docx:document:create` - Create documents
+- ✅ `docx:document:readonly` - Read documents
+- ✅ `wiki:wiki` - Wiki access
+- ✅ `wiki:wiki:readonly` - Read Wiki
+- ✅ `drive:drive` - Drive access
+- ✅ `drive:file:upload` - Upload files
+- ✅ `board:whiteboard:node:create` - Create whiteboards
+
+**User Permissions (用户权限) should include all above plus:**
+- ✅ `search:docs:read` - Search functionality
+- ✅ `offline_access` - Token refresh
 
 ---
 
@@ -596,61 +712,177 @@ If you encounter issues not covered in this guide:
 
 ### 理解权限类型
 
-飞书应用使用租户级权限。根据您要访问的内容，需要配置不同的权限：
+飞书使用两种类型的权限：
 
-| 功能 | 所需权限 | 状态 |
-|---------|---------------------|--------|
-| 读取文档 | `docx:document` | 必需 |
-| 读取 Wiki 页面 | `wiki:wiki:readonly` | 可选 |
-| 读取云空间文件 | `drive:drive:readonly` | 可选 |
-| 搜索内容 | `search:search:readonly` | 可选 |
+- **租户权限**（Tenant Permissions）：应用级访问，无需用户授权
+- **用户权限**（User Permissions）：用户特定访问，需要 OAuth 授权
 
-### 第一步：访问权限管理
+本技能支持两种认证类型。根据您的需求配置：
 
-1. 在左侧菜单栏中，点击 **"权限管理"**
-2. 您会看到两个标签页："租户权限"和"用户权限"
-3. 确保停留在 **"租户权限"** 标签页
+| 功能 | 租户权限 | 用户权限 |
+|---------|-------------------|------------------|
+| 读取文档 | ✅ | ✅ |
+| 创建/编辑文档 | ✅ | ✅ |
+| 上传图片 | ✅ | ✅ |
+| 知识库访问 | ✅ | ✅ |
+| 搜索内容 | ❌ | ✅ |
+| 多用户支持 | ❌ | ✅ |
 
-### 第二步：添加所需权限
+### 完整权限列表（读写权限）
 
-#### 方法 A：手动配置（逐个添加权限）
+本技能支持读取和编辑文档。请配置**所有**以下权限：
 
-1. 点击 **"添加权限"** 或 **"配置"** 按钮
-2. 搜索并启用每个权限：
-   - 搜索"document"并启用 `docx:document`
-   - 搜索"wiki"并启用 `wiki:wiki:readonly`
-   - 搜索"drive"并启用 `drive:drive:readonly`
-3. 启用每个权限后点击 **"保存"**
+#### 方法 A：批量导入（推荐）
 
-#### 方法 B：批量导入（JSON 配置）- 推荐
-
-使用批量导入功能可快速完成配置：
-
-1. 在 **"权限管理"** 页面中，找到并点击 **"批量导入"** 按钮
+1. 在 **"权限管理"** 中，点击 **"批量导入"**
 2. 选择 **"JSON 配置"** 模式
-3. 粘贴以下 JSON 配置：
+3. 粘贴完整的 JSON 配置：
+
+**租户认证（Tenant Authentication） - 应用级访问：**
 
 ```json
 {
   "scopes": {
     "tenant": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
       "docx:document",
-      "wiki:wiki:readonly",
-      "drive:drive:readonly"
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly"
     ]
   }
 }
 ```
 
-4. 点击 **"导入"** 或 **"应用"** 按钮
-5. 所有指定的权限将一次性启用
+**用户认证（User Authentication） - OAuth 支持搜索：**
 
-### 第三步：验证权限
+```json
+{
+  "scopes": {
+    "tenant": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
+      "docx:document",
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly"
+    ],
+    "user": [
+      "docx:document.block:convert",
+      "base:app:read",
+      "bitable:app:readonly",
+      "board:whiteboard:node:create",
+      "board:whiteboard:node:read",
+      "docs:document.content:read",
+      "docx:document",
+      "docx:document:create",
+      "docx:document:readonly",
+      "drive:drive",
+      "drive:drive:readonly",
+      "drive:file",
+      "drive:file:upload",
+      "sheets:spreadsheet:readonly",
+      "space:document:retrieve",
+      "space:folder:create",
+      "wiki:space:read",
+      "wiki:space:retrieve",
+      "wiki:wiki",
+      "wiki:wiki:readonly",
+      "search:docs:read",
+      "offline_access"
+    ]
+  }
+}
+```
 
-添加权限后，验证它们已出现在租户权限列表中：
-- ✅ `docx:document` - 获取和访问文档
-- ✅ `wiki:wiki:readonly` - 读取 Wiki 页面
-- ✅ `drive:drive:readonly` - 读取云空间文件
+4. 点击 **"导入"** 或 **"应用"**
+5. 所有权限将一次性启用
+
+#### 方法 B：手动配置（逐个添加）
+
+1. 点击 **"添加权限"**
+2. 搜索并启用每个权限：
+
+**文档权限：**
+- `docx:document` - 访问和编辑文档
+- `docx:document:create` - 创建新文档
+- `docx:document:readonly` - 读取文档
+- `docx:document.block:convert` - 转换块类型
+- `docs:document.content:read` - 读取文档内容
+
+**知识库权限：**
+- `wiki:wiki` - 访问知识库页面
+- `wiki:wiki:readonly` - 读取知识库页面
+- `wiki:space:read` - 读取知识库空间信息
+- `wiki:space:retrieve` - 检索知识库空间数据
+
+**云空间权限：**
+- `drive:drive` - 访问云空间（完全访问）
+- `drive:drive:readonly` - 读取云空间文件
+- `drive:file` - 管理文件
+- `drive:file:upload` - 上传文件
+- `space:document:retrieve` - 检索文档
+- `space:folder:create` - 创建文件夹
+
+**白板权限：**
+- `board:whiteboard:node:create` - 创建白板节点
+- `board:whiteboard:node:read` - 读取白板内容
+
+**其他权限：**
+- `base:app:read` - 读取应用信息
+- `bitable:app:readonly` - 读取多维表格应用
+- `sheets:spreadsheet:readonly` - 读取电子表格
+
+3. 用户认证还需添加：
+   - `search:docs:read` - 搜索文档
+   - `offline_access` - 刷新令牌支持
+
+### 验证权限
+
+添加权限后，验证它们已出现在权限列表中：
+
+**租户权限应包含：**
+- ✅ `docx:document` - 文档访问
+- ✅ `docx:document:create` - 创建文档
+- ✅ `docx:document:readonly` - 读取文档
+- ✅ `wiki:wiki` - 知识库访问
+- ✅ `wiki:wiki:readonly` - 读取知识库
+- ✅ `drive:drive` - 云空间访问
+- ✅ `drive:file:upload` - 上传文件
+- ✅ `board:whiteboard:node:create` - 创建白板
+
+**用户权限应包含以上所有加上：**
+- ✅ `search:docs:read` - 搜索功能
+- ✅ `offline_access` - 令牌刷新
 
 ---
 
