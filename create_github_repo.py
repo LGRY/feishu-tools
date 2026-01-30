@@ -175,7 +175,7 @@ def main():
         errors = result.get('errors', [])
 
         # Check if repository already exists
-        if 'already exists' in error_msg or (errors and 'already_exists' in str(errors)):
+        if 'already exists' in error_msg.lower() or 'name already exists' in error_msg.lower() or (errors and any('already_exists' in str(e).lower() or 'name already exists' in str(e).lower() for e in errors)):
             print("ℹ Repository already exists on GitHub")
             print()
             print("Attempting to push to existing repository...")
