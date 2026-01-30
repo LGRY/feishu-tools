@@ -165,9 +165,69 @@ def main():
             print(f"  git push -u origin master")
             return 1
     else:
-        print(f"✗ Failed to create repository")
-        print(f"Error: {result.get('message', 'Unknown error')}")
-        return 1
+        error_msg = result.get('message', 'Unknown error')
+        errors = result.get('errors', [])
+
+        # Check if repository already exists
+        if 'already exists' in error_msg or (errors and 'already_exists' in str(errors)):
+            print("ℹ Repository already exists on GitHub")
+            print()
+            print("Attempting to push to existing repository...")
+
+            # Try to get existing repository info
+            repo_url = "https://github.com/LGRY/feishu-tools.git"
+
+            # Check if remote exists
+            try:
+                result = subprocess.run(
+                    ["git", "remote", "get-url", "origin"],
+                    capture_output=True,
+                    text=True
+                )
+
+                if result.returncode == 0:
+                    # Remote exists, just push
+                    success, message = setup_git_remote(None)
+                    if success:
+                        print(f"✓ {message}")
+                        print()
+                        print("=" * 60)
+                        print("Repository Updated!")
+                        print("=" * 60)
+                        print()
+                        print(f"URL: https://github.com/LGRY/feishu-tools")
+                        print()
+                        print("Contact:")
+                        print("  Author: 龚子 (Gong Zi)")
+                        print("  Email: gxj1512@163.com")
+                        print()
+                        return 0
+                    else:
+                        print(f"✗ Failed to push: {message}")
+                        return 1
+                else:
+                    # Remote doesn't exist, add it
+                    success, message = setup_git_remote(repo_url)
+                    if success:
+                        print(f"✓ {message}")
+                        return 0
+                    else:
+                        print(f"✗ Failed: {message}")
+                        return 1
+
+            except Exception as e:
+                print(f"✗ Error: {str(e)}")
+                print()
+                print("Manual setup:")
+                print(f"  git remote add origin {repo_url}")
+                print(f"  git push -u origin master")
+                return 1
+        else:
+            print(f"✗ Failed to create repository")
+            print(f"Error: {error_msg}")
+            if errors:
+                print(f"Details: {errors}")
+            return 1
 
 
 if __name__ == "__main__":
